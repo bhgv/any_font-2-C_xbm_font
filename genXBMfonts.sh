@@ -87,6 +87,8 @@ then
 
     echo > $tc1
     echo > $tc2
+    echo > $tc11
+    echo > $tc22
 
     echo "extern const xbm_font font_"$fn"_"$Font_H"[];" >> $th
 
@@ -197,7 +199,7 @@ then
     echo >> $outc
 
     # extra: cleanup from temp
-    rm $tc1 $tc2 $th
+    rm $tc1 $tc2 $tc11 $tc22 $th
 fi
 
 
