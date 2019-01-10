@@ -47,8 +47,8 @@ if [ -r "$Font" ]
 then
     fn=$(echo "$Font" | grep -o -P "\w+\." | grep -o -P "\w+")
 
-    fontDestDir="./out"
-    xpmDestDir=$fontDestDir"/"$fn
+    fontDestDir=$PWD"/out"
+    xpmDestDir=$fontDestDir"/"$fn"_["$Font_H"]"
 
     mkdir -p "$fontDestDir"
     mkdir -p "$xpmDestDir"
@@ -56,8 +56,8 @@ then
     th=$fontDestDir/temp.h
     tc1=$fontDestDir/temp1.c
     tc2=$fontDestDir/temp2.c
-    outh=$fontDestDir/"$fn"_xbm_font.h
-    outc=$fontDestDir/"$fn"_xbm_font.c
+    outh=$fontDestDir/"$fn"_"["$Font_H"]"_xbm_font.h
+    outc=$fontDestDir/"$fn"_"["$Font_H"]"_xbm_font.c
 
     if [ -f "$th" ]
     then
@@ -69,7 +69,7 @@ then
     n="0"
 
     echo > $th
-    echo "#define NULL (void*)0" >> $th
+#    echo "#define NULL (void*)0" >> $th
     echo >> $th
     echo "typedef struct {char ascii; unsigned char w; unsigned char h; char *bits;} xbm_font;" >> $th
     echo >> $th
@@ -115,8 +115,8 @@ then
         then
             # 1. build commented label header: array idx, ascii code, glyph
 
-            echo "#include \""$fn"/_"$d"."$type"\"" >> $tc1
-            
+            echo "#include \""$fn"_["$Font_H"]/_"$d"."$type"\"" >> $tc1
+
             echo "  { "$c" ,_"$d"_width, _"$d"_height, _"$d"_bits, }, /* $n: ASCII $d [$D] */" >> $tc2
 
             echo "$n: $d.$type [$D]"
@@ -135,22 +135,25 @@ then
 
     done
 
+    echo "  { 0, 0, 0, NULL, }, /* end */" >> $tc2
     echo "};" >> $tc2
 
     printf "I: range of %d ASCII codes\n" $n
 
     # 1. build top C header
-    printf "#ifndef __XBM_FONT_H_%s__\n" $fn > $outh
-    printf "#define __XBM_FONT_H_%s__\n" $fn >> $outh
+    printf "#ifndef __XBM_FONT_H_%s_%d__\n" $fn $Font_H > $outh
+    printf "#define __XBM_FONT_H_%s_%d__\n" $fn $Font_H >> $outh
 
     printf "\n/*\n\t%s bits\n" $fonts >> $outh
-    printf "\tgenerated with genXBMfonts, https://github.com/masterzorag/xbm_tools\n" >> $outh
-    printf "\t2015, masterzorag@gmail.com\n*/\n\n" >> $outh
+    printf "\tgenerated with genXBMfonts, https://github.com/bhgv/any_font-2-C_xbm_font\n" >> $outh
+    printf "\t2018-2019, bhgv.empire@gmail.com\n" >> $outh
+    printf "\t2015,      masterzorag@gmail.com\n" >> $outh
+    printf "*/\n\n" >> $outh
 
-    printf "#define LOWER_ASCII_CODE %d\n" 32 >> $outh
-    printf "#define UPPER_ASCII_CODE %d\n" $((n + 32)) >> $outh
-    printf "#define FONT_H %d\n" $Font_H >> $outh
-    printf "#define BITS_IN_BYTE %d\n\n" 8 >> $outh
+    printf "#define LOWER_ASCII_CODE_%s_%d %d\n" $fn $Font_H 32 >> $outh
+    printf "#define UPPER_ASCII_CODE_%s_%d %d\n" $fn $Font_H $((n + 32)) >> $outh
+    printf "#define FONT_%s_%d_H %d\n" $fn $Font_H $Font_H >> $outh
+    printf "#define BITS_IN_BYTE_%s_%d %d\n\n" $fn $Font_H 8 >> $outh
     echo >> $outh
 
     cat $th >> $outh
@@ -160,7 +163,7 @@ then
     cat $tc1 > $outc
     echo >> $outc
     echo >> $outc
-    echo "#include \""$fn"_xbm_font.h\"" >> $outc
+    echo "#include \""$fn"_"["$Font_H"]"_xbm_font.h\"" >> $outc
     echo >> $outc
     echo >> $outc
     cat $tc2 >> $outc
@@ -171,7 +174,7 @@ fi
 
 
 # count and report exported
-n=$(ls $fontDestDir/*.$type | wc -l)
+n=$(ls $xpmDestDir | grep ".$type\$" | wc -l)
 printf "I: succesfully parsed %d ASCII codes\nDone\n\n" $n
 
 # inquiry
