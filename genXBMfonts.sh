@@ -55,13 +55,15 @@ then
 
     th=$fontDestDir/temp.h
     tc1=$fontDestDir/temp1.c
+    tc11=$fontDestDir/temp11.c
     tc2=$fontDestDir/temp2.c
+    tc22=$fontDestDir/temp22.c
     outh=$fontDestDir/"$fn"_"["$Font_H"]"_xbm_font.h
     outc=$fontDestDir/"$fn"_"["$Font_H"]"_xbm_font.c
 
     if [ -f "$th" ]
     then
-        rm $th $tc1 $tc2
+        rm $th $tc1 $tc2 $tc11 $tc22
         rm $outh $outc
     fi
 
@@ -69,7 +71,15 @@ then
     n="0"
 
     echo > $th
-#    echo "#define NULL (void*)0" >> $th
+    echo "#ifndef NULL"          >> $th
+    echo "#define NULL (void*)0" >> $th
+    echo "#endif"                >> $th
+    echo >> $th
+    echo >> $th
+    echo "#ifndef COMPRESSED"    >> $th
+    echo "#define COMPRESSED"    >> $th
+    echo "#endif"                >> $th
+    echo >> $th
     echo >> $th
     echo "typedef struct {char ascii; unsigned char w; unsigned char h; char *bits;} xbm_font;" >> $th
     echo >> $th
@@ -81,6 +91,7 @@ then
     echo "extern const xbm_font font_"$fn"_"$Font_H"[];" >> $th
 
     echo "const xbm_font font_"$fn"_"$Font_H"[] = {" >> $tc2
+    echo "const xbm_font font_"$fn"_"$Font_H"[] = {" >> $tc22
 
     # chars="  ! a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 + - / # . , \*"    
     # for c in $chars
@@ -115,9 +126,13 @@ then
         then
             # 1. build commented label header: array idx, ascii code, glyph
 
+            python compress.py $xpmDestDir"/_"$d"."$type
+
             echo "#include \""$fn"_["$Font_H"]/_"$d"."$type"\"" >> $tc1
+            echo "#include \""$fn"_["$Font_H"]/z_"$d"."$type"\"" >> $tc11
 
             echo "  { "$c" ,_"$d"_width, _"$d"_height, _"$d"_bits, }, /* $n: ASCII $d [$D] */" >> $tc2
+            echo "  { "$c" ,z_"$d"_width, z_"$d"_height, z_"$d"_bits, }, /* $n: ASCII $d [$D] */" >> $tc22
 
             echo "$n: $d.$type [$D]"
 
@@ -126,6 +141,7 @@ then
         else
             # 1. build zeroed commented label header: array idx, ascii code, glyph
             echo "  { "$c", 0, 0, NULL, }, /* $n: ASCII $d [$D] */" >> $tc2
+            echo "  { "$c", 0, 0, NULL, }, /* $n: ASCII $d [$D] */" >> $tc22
 
             echo "$n: $d.$type does not exists!"
         fi
@@ -137,6 +153,8 @@ then
 
     echo "  { 0, 0, 0, NULL, }, /* end */" >> $tc2
     echo "};" >> $tc2
+    echo "  { 0, 0, 0, NULL, }, /* end */" >> $tc22
+    echo "};" >> $tc22
 
     printf "I: range of %d ASCII codes\n" $n
 
@@ -160,13 +178,23 @@ then
     echo  >> $outh
     printf "#endif //__XBM_FONT_H__\n" >> $outh
 
-    cat $tc1 > $outc
+    echo > $outc
+    echo "#ifndef COMRESSED"    >> $outc
+    cat $tc1                    >> $outc
+    echo "#else"                >> $outc
+    cat $tc11                   >> $outc
+    echo "#endif"               >> $outc
     echo >> $outc
     echo >> $outc
     echo "#include \""$fn"_"["$Font_H"]"_xbm_font.h\"" >> $outc
     echo >> $outc
     echo >> $outc
-    cat $tc2 >> $outc
+    echo "#ifndef COMRESSED"    >> $outc
+    cat $tc2                    >> $outc
+    echo "#else"                >> $outc
+    cat $tc22                   >> $outc
+    echo "#endif"               >> $outc
+    echo >> $outc
 
     # extra: cleanup from temp
     rm $tc1 $tc2 $th
