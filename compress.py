@@ -131,6 +131,8 @@ _if_store_0(f)
 _if_store_1(f)
 _if_store_x(f, bits, i)
 
+f.write("0x0,\n")
+
 f.write("};\n")
 f.close()
 

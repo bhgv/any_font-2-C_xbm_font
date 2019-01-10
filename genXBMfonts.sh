@@ -181,17 +181,17 @@ then
     printf "#endif //__XBM_FONT_H__\n" >> $outh
 
     echo > $outc
-    echo "#ifndef COMRESSED"    >> $outc
+    echo "#include \""$fn"_"["$Font_H"]"_xbm_font.h\"" >> $outc
+    echo >> $outc
+    echo >> $outc
+    echo "#ifndef COMPRESSED"   >> $outc
     cat $tc1                    >> $outc
     echo "#else"                >> $outc
     cat $tc11                   >> $outc
     echo "#endif"               >> $outc
     echo >> $outc
     echo >> $outc
-    echo "#include \""$fn"_"["$Font_H"]"_xbm_font.h\"" >> $outc
-    echo >> $outc
-    echo >> $outc
-    echo "#ifndef COMRESSED"    >> $outc
+    echo "#ifndef COMPRESSED"   >> $outc
     cat $tc2                    >> $outc
     echo "#else"                >> $outc
     cat $tc22                   >> $outc
