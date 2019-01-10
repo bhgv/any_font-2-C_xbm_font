@@ -78,7 +78,7 @@ then
     echo > $tc1
     echo > $tc2
 
-    echo "extern xbm_font font_"$fn"_"$Font_H"[];" >> $th
+    echo "extern const xbm_font font_"$fn"_"$Font_H"[];" >> $th
 
     echo "const xbm_font font_"$fn"_"$Font_H"[] = {" >> $tc2
 
