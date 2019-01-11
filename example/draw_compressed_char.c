@@ -17,9 +17,9 @@ static void __aux_Paint_DrawByteXBM(uint16_t x, uint16_t y, uint8_t b)
 void Paint_DrawCompressedXBM(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
                          const uint8_t* xbm_buffer)
 {
-    UWORD i, j;
-    UBYTE b, n;
-    UWORD xp, yp;
+    uint16_t i, j;
+    uint8_t b, n;
+    uint16_t xp, yp;
 
     xp = 0; yp = 0;
     for(i = 0; xbm_buffer[i] != 0; ){
